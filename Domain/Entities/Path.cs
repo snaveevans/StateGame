@@ -4,5 +4,9 @@ namespace Domain.Entities
     {
         public State Origin { get; set; }
         public State Destination { get; set; }
+        internal Path()
+        {
+            
+        }
     }
 }

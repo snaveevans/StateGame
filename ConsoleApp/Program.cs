@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using ConsoleApp.Entities;
+using Domain.Entities;
+using Domain;
 using static System.Console;
 
 namespace ConsoleApp
@@ -10,15 +11,21 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            var game = new Game();
-            var terminalState = new State();
-            var units = new List<Unit>();
-            units.AddRange(new[] { new Unit(), new Unit(), new Unit(), new Unit() });
+            var factory = new DomainFactory();
+            var game = factory.CreateGame();
+            var terminalState = factory.CreateState();
+            var units = new List<Unit>
+            {
+                factory.CreateUnit(),
+                factory.CreateUnit(),
+                factory.CreateUnit(),
+                factory.CreateUnit()
+            };
             terminalState.Units = units;
             game.States.Add(terminalState);
-            game.States.Add(new State());
-            game.States.Add(new State());
-            game.States.Add(new State());
+            game.States.Add(factory.CreateState());
+            game.States.Add(factory.CreateState());
+            game.States.Add(factory.CreateState());
 
             while (game.States.Any(state => state.Units.Count > 1))
             {
@@ -26,7 +33,7 @@ namespace ConsoleApp
                     .Where(state => state.Units.Any())
                     .OrderByDescending(state => state.Units.Count)
                     .ToList();
-                var designation = new Designation();
+                var designation = factory.CreateDesignation();
                 game.Designations.Add(designation);
                 var availableStates = game.States.Clone();
 
@@ -42,11 +49,9 @@ namespace ConsoleApp
                     var randomlySelectedState = RandomlySelectState(availableStates);
                     availableStates.Remove(randomlySelectedState);
 
-                    var path = new Path(designation)
-                    {
-                        Origin = randomlySelectedState,
-                        Destination = currentState
-                    };
+                    var path = factory.CreatePath();                    
+                    path.Origin = randomlySelectedState;
+                    path.Destination = currentState;
                     designation.Paths.Add(path);
 
                     currentState.Units.Remove(separatingUnit);
@@ -55,11 +60,9 @@ namespace ConsoleApp
                     randomlySelectedState = RandomlySelectState(availableStates);
                     availableStates.Remove(randomlySelectedState);
                     
-                    path = new Path(designation)
-                    {
-                        Origin = randomlySelectedState,
-                        Destination = currentState
-                    };
+                    path = factory.CreatePath();                    
+                    path.Origin = randomlySelectedState;
+                    path.Destination = currentState;
                     designation.Paths.Add(path);
 
                     currentState.Units = currentState.Units.RemoveRange(otherUnits);
@@ -76,11 +79,9 @@ namespace ConsoleApp
 
                     var randomlySelectedState = RandomlySelectState(tempStates);
 
-                    var path = new Path(designation)
-                    {
-                        Origin = randomlySelectedState,
-                        Destination = currentState
-                    };
+                    var path = factory.CreatePath();                    
+                    path.Origin = randomlySelectedState;
+                    path.Destination = currentState;
                     designation.Paths.Add(path);
                 }
             }
